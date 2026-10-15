@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -144,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Focus(
           autofocus: true,
           child: Scaffold(
-            appBar: AppBar(title: const Text('Tasks'), actions: [_menu()]),
+            appBar: AppBar(title: const Text('Tasks'), actions: [_PendingBadge(widget.repo.pending), _menu()]),
             body: StreamBuilder<List<Task>>(
               stream: widget.repo.watch(),
               builder: (context, snap) {
@@ -230,4 +233,61 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       );
+}
+
+/// "offline · N pending" for writes the server hasn't acknowledged. Shown only after 3s, so a normal save doesn't flash it.
+class _PendingBadge extends StatefulWidget {
+  const _PendingBadge(this.pending);
+
+  final ValueListenable<int> pending;
+
+  @override
+  State<_PendingBadge> createState() => _PendingBadgeState();
+}
+
+class _PendingBadgeState extends State<_PendingBadge> {
+  Timer? _timer;
+  bool _show = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.pending.addListener(_changed);
+    _changed();
+  }
+
+  void _changed() {
+    if (widget.pending.value == 0) {
+      _timer?.cancel();
+      _timer = null;
+      if (_show) setState(() => _show = false);
+      return;
+    }
+    _timer ??= Timer(const Duration(seconds: 3), () {
+      if (mounted) setState(() => _show = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    widget.pending.removeListener(_changed);
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_show) return const SizedBox.shrink();
+    return ValueListenableBuilder<int>(
+      valueListenable: widget.pending,
+      builder: (context, n, _) => Padding(
+        padding: const EdgeInsets.only(right: 4),
+        child: Chip(
+          avatar: const Icon(Icons.cloud_off, size: 16),
+          label: Text('offline · $n pending'),
+          visualDensity: VisualDensity.compact,
+        ),
+      ),
+    );
+  }
 }

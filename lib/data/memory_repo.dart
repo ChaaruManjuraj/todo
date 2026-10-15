@@ -17,7 +17,7 @@ class MemoryRepo implements TaskRepository {
   final _listeners = <MultiStreamController<List<Task>>>{};
 
   @override
-  final pending = ValueNotifier(0);
+  final ValueNotifier<int> pending = ValueNotifier(0);
 
   List<Task> get _snapshot => List.unmodifiable(_tasks.values);
 

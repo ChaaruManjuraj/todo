@@ -82,8 +82,8 @@ void main() {
   late int refreshCalls;
   final opened = <RestRepo>[];
 
-  Future<RestRepo> open({Future<String> Function({bool forceRefresh})? token}) async {
-    final r = await RestRepo.open(
+  RestRepo open({Future<String> Function({bool forceRefresh})? token}) {
+    final r = RestRepo.open(
       client: MockClient(fs.handle),
       idToken: token ??
           ({bool forceRefresh = false}) async {
@@ -121,7 +121,7 @@ void main() {
 
   test('offline: a write lands in the cache at once and waits in the outbox', () async {
     fs.offline = true;
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a', name: 'offline task'));
     await r.refresh();
     expect((await current(r)).single.name, 'offline task');
@@ -130,16 +130,16 @@ void main() {
 
   test('the outbox and cache survive a restart', () async {
     fs.offline = true;
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a', name: 'kept'));
     await r.refresh();
-    final again = await open();
+    final again = open();
     expect(again.pending.value, 1);
     expect((await current(again)).single.name, 'kept');
   });
 
   test('refresh flushes the outbox: server stamps updatedAt, pending goes to 0', () async {
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a'));
     await r.refresh();
     expect(r.pending.value, 0);
@@ -156,7 +156,7 @@ void main() {
 
   test('a failed flush (5xx) keeps the outbox and the local edit; a later refresh succeeds', () async {
     fs.commitStatus = 503;
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a', name: 'local'));
     await r.refresh();
     expect(r.pending.value, 1);
@@ -169,7 +169,7 @@ void main() {
 
   test('a write the server rejects outright (403) is dropped, not retried forever', () async {
     fs.commitStatus = 403;
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a'));
     await r.refresh();
     expect(r.pending.value, 0);
@@ -178,7 +178,7 @@ void main() {
 
   test('a document deleted remotely disappears after refresh', () async {
     fs.put(mk('x'));
-    final r = await open();
+    final r = open();
     await r.refresh();
     expect((await current(r)).map((t) => t.id), ['x']);
     fs.docs.remove('x');
@@ -190,7 +190,7 @@ void main() {
     for (final id in ['a', 'b', 'c', 'd', 'e']) {
       fs.put(mk(id));
     }
-    final r = await open();
+    final r = open();
     await r.refresh();
     expect((await current(r)).map((t) => t.id).toSet(), {'a', 'b', 'c', 'd', 'e'});
     expect(fs.requests.where((q) => q.url.queryParameters.containsKey('pageToken')).length, 2);
@@ -199,14 +199,14 @@ void main() {
   test('a 401 asks for a fresh token once and retries', () async {
     fs.validToken = 'new';
     fs.put(mk('x'));
-    final r = await open();
+    final r = open();
     await r.refresh();
     expect(refreshCalls, 1);
     expect((await current(r)).map((t) => t.id), ['x']);
   });
 
   test('a token provider that fails (signed out) does not throw and keeps the outbox', () async {
-    final r = await open(token: ({bool forceRefresh = false}) async => throw Exception('signed out'));
+    final r = open(token: ({bool forceRefresh = false}) async => throw Exception('signed out'));
     await r.upsert(mk('a'));
     await expectLater(r.refresh(), completes);
     expect(r.pending.value, 1);
@@ -214,7 +214,7 @@ void main() {
 
   test('delete hides the task at once and is sent when online', () async {
     fs.put(mk('a'));
-    final r = await open();
+    final r = open();
     await r.refresh();
     fs.offline = true;
     await r.delete('a');
@@ -229,7 +229,7 @@ void main() {
 
   test('later edits to the same task replace earlier queued ones', () async {
     fs.offline = true;
-    final r = await open();
+    final r = open();
     await r.upsert(mk('a', name: 'one'));
     await r.upsert(mk('a', name: 'two'));
     await r.refresh();
@@ -240,7 +240,7 @@ void main() {
   group('conflicts: the later edit wins', () {
     Future<RestRepo> cachedWithRemoteEdit(DateTime remoteUpdatedAt) async {
       fs.put(mk('a', name: 'original'));
-      final r = await open();
+      final r = open();
       await r.refresh(); // cache now holds updateTime u1
       fs.put(mk('a', name: 'remote edit'), updatedAt: remoteUpdatedAt); // someone else wrote since
       return r;
@@ -269,13 +269,13 @@ void main() {
   test('a corrupt cache file is ignored instead of crashing', () async {
     File('${dir.path}/tasks.json').writeAsStringSync('{not json');
     fs.put(mk('a'));
-    final r = await open();
+    final r = open();
     await r.refresh();
     expect((await current(r)).map((t) => t.id), ['a']);
   });
 
   test('watch replays the current state and emits on change', () async {
-    final r = await open();
+    final r = open();
     final seen = <int>[];
     final sub = r.watch().listen((l) => seen.add(l.length));
     await Future<void>.delayed(Duration.zero);

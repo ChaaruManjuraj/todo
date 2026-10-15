@@ -17,7 +17,7 @@ class RestRepo implements TaskRepository {
   RestRepo._(this._client, this._idToken, this._uid, this._project, this._host, this._now, this._tasksFile, this._outboxFile);
 
   /// [idToken] returns a Firebase ID token; `forceRefresh` is set after a 401.
-  static Future<RestRepo> open({
+  static RestRepo open({
     required http.Client client,
     required Future<String> Function({bool forceRefresh}) idToken,
     required Directory cacheDir,
@@ -26,7 +26,7 @@ class RestRepo implements TaskRepository {
     String host = 'https://firestore.googleapis.com',
     DateTime Function()? now,
     Duration? poll = const Duration(seconds: 60),
-  }) async {
+  }) {
     cacheDir.createSync(recursive: true);
     final r = RestRepo._(client, idToken, uid, project, host, now ?? DateTime.now, JsonFile(cacheDir, 'tasks.json'), JsonFile(cacheDir, 'outbox.json'));
     r._load();
