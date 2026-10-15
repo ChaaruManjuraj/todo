@@ -15,6 +15,7 @@ import 'data/task_repository.dart';
 import 'data/rest_repo.dart';
 import 'firebase_options.dart';
 import 'reminders/android_scheduler.dart';
+import 'reminders/background_sync.dart';
 import 'reminders/reminder_scheduler.dart';
 import 'ui/clock.dart';
 import 'ui/theme_controller.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
       final port = AndroidNotificationPort();
       await port.init();
       requestNotificationPermission = port.requestPermission;
+      await registerReminderSync();
       final syncs = <String, ReminderSync>{};
       auth.uid().listen((uid) async {
         if (uid != null) return;
