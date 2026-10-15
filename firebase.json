@@ -1,8 +1,1 @@
-{
-  "firestore": { "rules": "firestore.rules" },
-  "emulators": {
-    "firestore": { "port": 8085 },
-    "auth": { "port": 9099 },
-    "ui": { "enabled": false }
-  }
-}
+{"firestore":{"rules":"firestore.rules"},"emulators":{"firestore":{"port":8085},"auth":{"port":9099},"ui":{"enabled":false}},"flutter":{"platforms":{"android":{"default":{"projectId":"todo-ba12a","appId":"1:1013705738501:android:9b0af9896e1c7e3a388f6c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"todo-ba12a","configurations":{"android":"1:1013705738501:android:9b0af9896e1c7e3a388f6c","macos":"1:1013705738501:ios:d76bbc292fd17266388f6c","web":"1:1013705738501:web:0ccd726993553c8a388f6c"}}}}}}

@@ -39,11 +39,12 @@ class _FocusQuickAddAction extends Action<_FocusQuickAdd> {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.repo, required this.clock, required this.theme});
+  const HomeScreen({super.key, required this.repo, required this.clock, required this.theme, this.onSignOut});
 
   final TaskRepository repo;
   final Clock clock;
   final ThemeController theme;
+  final VoidCallback? onSignOut; // null when there is no account (menu item disabled)
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -214,6 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onSelected: (v) {
             if (v is ThemeMode) widget.theme.set(v);
             if (v == 'completed') setState(() => _showAllCompleted = !_showAllCompleted);
+            if (v == 'signout') widget.onSignOut?.call();
           },
           itemBuilder: (_) => [
             for (final m in ThemeMode.values)
@@ -224,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             const PopupMenuDivider(),
             CheckedPopupMenuItem<Object>(value: 'completed', checked: _showAllCompleted, child: const Text('Show all completed')),
-            const PopupMenuItem<Object>(enabled: false, child: Text('Sign out')), // wired in slice 7
+            PopupMenuItem<Object>(value: 'signout', enabled: widget.onSignOut != null, child: const Text('Sign out')),
           ],
         ),
       );
