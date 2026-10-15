@@ -41,3 +41,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Secrets and local-only files: never commit these
+key.properties
+*.jks
+*.keystore
+client_secret*.json
+desktop_oauth*.json
+service-account*.json
+.env
+.env.*
+*-debug.log
+test/rules/node_modules/

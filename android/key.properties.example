@@ -1,0 +1,7 @@
+# Copy to key.properties (git-ignored) and fill in. Without it, release builds are signed with the debug key.
+# Create a keystore with:
+#   keytool -genkeypair -v -keystore app/upload-keystore.jks -storetype JKS -alias upload -keyalg RSA -keysize 2048 -validity 10000
+storePassword=<password>
+keyPassword=<password>
+keyAlias=upload
+storeFile=upload-keystore.jks

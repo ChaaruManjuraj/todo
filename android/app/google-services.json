@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "1013705738501-s2poa728rjemf1o4mt4lcm47mvrrc5uj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chaaru.todo",
+            "certificate_hash": "515cdbe7c265c45e883031b30577d17ed733e794"
+          }
+        },
+        {
           "client_id": "1013705738501-8dkj4115s607mk8eism7134m0im9fd2c.apps.googleusercontent.com",
           "client_type": 3
         }

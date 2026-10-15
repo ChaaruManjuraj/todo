@@ -1,0 +1,9 @@
+# The web app is built locally (Netlify's build image has no Flutter) and the build/web folder is deployed as-is.
+[build]
+  publish = "build/web"
+
+# Single-page app: any path serves index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
