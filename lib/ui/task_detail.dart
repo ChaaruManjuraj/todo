@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../domain/schedule.dart';
 import '../domain/task.dart';
+import '../reminders/reminder_scheduler.dart';
 import 'people_field.dart';
 import 'task_row.dart';
 
@@ -59,6 +60,7 @@ class _TaskDetailState extends State<TaskDetail> {
   final _nameFocus = FocusNode();
   final _notesFocus = FocusNode();
   late Task _draft = widget.task;
+  bool _notificationsBlocked = false;
 
   @override
   void initState() {
@@ -81,6 +83,16 @@ class _TaskDetailState extends State<TaskDetail> {
   Task get _current => _draft.copyWith(name: _name.text.trim(), notes: _notes.text);
 
   void _update(Task t) => setState(() => _draft = t);
+
+  /// Turning a reminder on asks for notification permission (Android; first time only shows a prompt). It stays on
+  /// if denied, but a warning explains it won't fire.
+  Future<void> _setReminder(bool on) async {
+    _update(_current.copyWith(reminder: on));
+    final ask = requestNotificationPermission;
+    if (!on || ask == null) return;
+    final granted = await ask();
+    if (mounted) setState(() => _notificationsBlocked = !granted);
+  }
 
   Future<void> _pickDate({required bool end}) async {
     final existing = end ? _draft.endDate : _draft.startDate;
@@ -186,8 +198,22 @@ class _TaskDetailState extends State<TaskDetail> {
               title: const Text('Reminder'),
               subtitle: hasStart ? null : const Text('Set a start date first'),
               value: cur.reminder,
-              onChanged: hasStart ? (v) => _update(_current.copyWith(reminder: v)) : null,
+              onChanged: hasStart ? _setReminder : null,
             ),
+            if (_notificationsBlocked && cur.reminder)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Icon(Icons.warning_amber_rounded, size: 18, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      "Notifications are blocked for this app, so this reminder won't fire. Allow them in system settings.",
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ]),
+              ),
             if (error != null)
               Semantics(
                 liveRegion: true,

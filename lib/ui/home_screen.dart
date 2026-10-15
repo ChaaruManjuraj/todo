@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../data/task_repository.dart';
 import '../domain/schedule.dart';
 import '../domain/task.dart';
+import '../reminders/reminder_scheduler.dart';
 import 'animated_task_list.dart';
 import 'clock.dart';
 import 'quick_add_bar.dart';
@@ -58,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _quickAdd = FocusNode();
   bool _showAllCompleted = false;
   String? _panelId; // task open in the wide-layout side panel
+  List<Task> _latest = const [];
   final _pendingDelete = <String>{}; // hidden now, deleted for real when the Undo snackbar closes
 
   @override
@@ -65,10 +67,21 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // Re-evaluate "now" when the app comes back to the foreground / regains focus.
     _lifecycle = AppLifecycleListener(onResume: widget.clock.refresh);
+    notificationTaps.addListener(_openRequested);
+  }
+
+  /// A tapped reminder asks for its task. On a cold start the list may not have loaded yet; it is retried on load.
+  void _openRequested() {
+    final id = notificationTaps.value;
+    final task = id == null ? null : _latest.where((t) => t.id == id).firstOrNull;
+    if (task == null || !mounted) return;
+    notificationTaps.value = null;
+    _open(task, _latest, MediaQuery.sizeOf(context).width >= _wideBreakpoint);
   }
 
   @override
   void dispose() {
+    notificationTaps.removeListener(_openRequested);
     _lifecycle.dispose();
     _quickAdd.dispose();
     super.dispose();
@@ -153,6 +166,8 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, snap) {
                 if (!snap.hasData) return const Center(child: CircularProgressIndicator());
                 final all = snap.data!;
+                _latest = all;
+                if (notificationTaps.value != null) WidgetsBinding.instance.addPostFrameCallback((_) => _openRequested());
                 return LayoutBuilder(builder: (context, box) {
                   final wide = box.maxWidth >= _wideBreakpoint;
                   final open = wide ? all.where((t) => t.id == _panelId).firstOrNull : null;

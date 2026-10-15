@@ -11,8 +11,11 @@ import 'app.dart';
 import 'auth/desktop_auth_service.dart';
 import 'auth/firebase_auth_service.dart';
 import 'data/firestore_repo.dart';
+import 'data/task_repository.dart';
 import 'data/rest_repo.dart';
 import 'firebase_options.dart';
+import 'reminders/android_scheduler.dart';
+import 'reminders/reminder_scheduler.dart';
 import 'ui/clock.dart';
 import 'ui/theme_controller.dart';
 
@@ -25,7 +28,31 @@ Future<void> main() async {
   final flutterFire = kIsWeb || defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.macOS;
   if (flutterFire) {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    runApp(TodoApp(clock: clock, theme: theme, auth: FirebaseAuthService(), repoFor: (uid) => FirestoreRepo(uid)));
+    final auth = FirebaseAuthService();
+    TaskRepository Function(String uid) repoFor = (uid) => FirestoreRepo(uid);
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      // Reminders fire on Android only: keep scheduled notifications in step with the signed-in user's tasks.
+      final port = AndroidNotificationPort();
+      await port.init();
+      requestNotificationPermission = port.requestPermission;
+      final syncs = <String, ReminderSync>{};
+      auth.uid().listen((uid) async {
+        if (uid != null) return;
+        for (final s in syncs.values) {
+          await s.stop();
+        }
+        syncs.clear();
+        await port.cancelAll(); // signed out: nothing of this account may fire
+      });
+      repoFor = (uid) {
+        final repo = FirestoreRepo(uid);
+        syncs.remove(uid)?.stop();
+        (syncs[uid] = ReminderSync(repo, port)).start();
+        return repo;
+      };
+    }
+    runApp(TodoApp(clock: clock, theme: theme, auth: auth, repoFor: repoFor));
   } else {
     // Windows and Linux: Google sign-in through the system browser, Firestore over REST with a local cache.
     final support = await getApplicationSupportDirectory();
