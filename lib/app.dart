@@ -24,6 +24,7 @@ class TodoApp extends StatelessWidget {
         valueListenable: theme,
         builder: (context, mode, _) => MaterialApp(
           title: 'TODO',
+          debugShowCheckedModeBanner: false, // the ribbon would sit on top of the menu button
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: mode,

@@ -34,32 +34,62 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 360),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Text('TODO', style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: 8),
-                Text('Your tasks, on every device.', style: Theme.of(context).textTheme.bodyMedium),
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(color: scheme.primaryContainer, shape: BoxShape.circle),
+                    child: Icon(Icons.check_rounded, size: 30, color: scheme.onPrimaryContainer),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                Text('Your tasks, everywhere.', style: text.displaySmall),
+                const SizedBox(height: 10),
+                Text('Sign in once and your list follows you from your phone to your desk.',
+                    style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant)),
                 const SizedBox(height: 32),
                 FilledButton.icon(
                   onPressed: _busy ? null : _signIn,
-                  icon: _busy ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
+                  icon: _busy
+                      ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: scheme.onSurfaceVariant))
+                      : const Icon(Icons.login_rounded),
                   label: const Text('Sign in with Google'),
                 ),
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: Semantics(liveRegion: true, child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: scheme.errorContainer, borderRadius: BorderRadius.circular(12)),
+                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Icon(Icons.error_outline_rounded, size: 20, color: scheme.onErrorContainer),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(_error!, style: text.bodyMedium?.copyWith(color: scheme.onErrorContainer))),
+                        ]),
+                      ),
+                    ),
                   ),
               ]),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// Sign-in screen while signed out; the task list (backed by a repo for that user) once signed in.

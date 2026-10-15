@@ -32,7 +32,12 @@ class _PeopleFieldState extends State<PeopleField> {
             padding: const EdgeInsets.only(bottom: 8),
             child: Wrap(spacing: 8, runSpacing: 4, children: [
               for (final p in widget.selected)
-                InputChip(label: Text(p), onDeleted: () => widget.onChanged([...widget.selected]..remove(p))),
+                // The whole chip removes the person: a separate 16dp "x" is far too small to tap.
+                InputChip(
+                  tooltip: 'Remove $p',
+                  label: Row(mainAxisSize: MainAxisSize.min, children: [Text(p), const SizedBox(width: 6), const Icon(Icons.close_rounded, size: 16)]),
+                  onPressed: () => widget.onChanged([...widget.selected]..remove(p)),
+                ),
             ]),
           ),
         Autocomplete<String>(
@@ -47,7 +52,7 @@ class _PeopleFieldState extends State<PeopleField> {
             return TextField(
               controller: ctl,
               focusNode: focus,
-              decoration: const InputDecoration(labelText: 'People', hintText: 'Add a name and press Enter', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'People', hintText: 'Add a name and press Enter'),
               onSubmitted: (v) {
                 _add(v);
                 focus.requestFocus();

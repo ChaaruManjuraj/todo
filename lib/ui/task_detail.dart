@@ -146,8 +146,8 @@ class _TaskDetailState extends State<TaskDetail> {
           _Save: _Guarded<_Save>(() => !_notesFocus.hasFocus && !PeopleField.hasFocus() && error == null, () => widget.onSave(_current)),
         },
         child: Material(
-          color: Theme.of(context).colorScheme.surface,
-          child: ListView(padding: const EdgeInsets.all(16), shrinkWrap: true, children: [
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          child: ListView(padding: const EdgeInsets.fromLTRB(20, 4, 20, 20), shrinkWrap: true, children: [
             Row(children: [
               Expanded(child: Text('Task', style: Theme.of(context).textTheme.titleMedium)),
               IconButton(tooltip: 'Close', icon: const Icon(Icons.close), onPressed: widget.onClose),
@@ -158,7 +158,7 @@ class _TaskDetailState extends State<TaskDetail> {
               focusNode: _nameFocus,
               maxLength: 200,
               buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
-              decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder()),
+              decoration: const InputDecoration(labelText: 'Name'),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -190,7 +190,10 @@ class _TaskDetailState extends State<TaskDetail> {
               minLines: 3,
               maxLines: 6,
               maxLength: 5000,
-              decoration: const InputDecoration(labelText: 'Notes', border: OutlineInputBorder()),
+              // a counter on an empty field is noise: only show it when the limit is near
+              buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+                  currentLength < 4500 ? null : Text('$currentLength/$maxLength'),
+              decoration: const InputDecoration(labelText: 'Notes'),
               onChanged: (_) => setState(() {}),
             ),
             SwitchListTile(

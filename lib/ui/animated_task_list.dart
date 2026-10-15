@@ -99,7 +99,7 @@ class _AnimatedState extends State<_Animated>
       vsync: this,
       duration: const Duration(milliseconds: 200),
       value: widget.enter ? 0 : 1);
-  late final _curve = CurvedAnimation(parent: _c, curve: Curves.easeOutCubic);
+  late final _curve = CurvedAnimation(parent: _c, curve: Curves.easeOutQuart);
 
   @override
   void initState() {

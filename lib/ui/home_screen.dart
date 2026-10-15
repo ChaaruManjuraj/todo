@@ -10,6 +10,7 @@ import '../domain/task.dart';
 import '../reminders/reminder_scheduler.dart';
 import 'animated_task_list.dart';
 import 'clock.dart';
+import 'empty_state.dart';
 import 'quick_add_bar.dart';
 import 'task_detail.dart';
 import 'task_row.dart';
@@ -25,6 +26,7 @@ const _titles = {
 };
 
 const _wideBreakpoint = 720.0;
+const _readingWidth = 680.0; // the list stops growing here, so rows stay easy to scan
 
 class _FocusQuickAdd extends Intent {
   const _FocusQuickAdd();
@@ -171,12 +173,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 return LayoutBuilder(builder: (context, box) {
                   final wide = box.maxWidth >= _wideBreakpoint;
                   final open = wide ? all.where((t) => t.id == _panelId).firstOrNull : null;
-                  return Row(children: [
+                  return Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     Expanded(
-                      child: Column(children: [
-                        QuickAddBar(onSubmit: _create, focusNode: _quickAdd),
-                        Expanded(child: _list(all, wide)),
-                      ]),
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: _readingWidth),
+                          child: Column(children: [
+                            QuickAddBar(onSubmit: _create, focusNode: _quickAdd),
+                            Expanded(child: _list(all, wide)),
+                          ]),
+                        ),
+                      ),
                     ),
                     if (open != null) ...[
                       const VerticalDivider(width: 1),
@@ -197,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, now, _) {
           final visible = all.where((t) => !_pendingDelete.contains(t.id)).toList();
           final sections = groupTasks(visible, now, showAllCompleted: _showAllCompleted);
-          if (sections.isEmpty) return const Center(child: Text('Nothing to do'));
+          if (sections.isEmpty) return const EmptyState();
           return AnimatedTaskList(entries: [
             for (final e in sections.entries) ...[
               ListEntry(
@@ -205,8 +213,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Semantics(
                   header: true,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
-                    child: Text(_titles[e.key]!, style: Theme.of(context).textTheme.titleSmall),
+  padding: const EdgeInsets.fromLTRB(28, 24, 16, 4),
+                    child: Text(_titles[e.key]!, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ),
                 ),
               ),

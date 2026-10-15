@@ -118,7 +118,7 @@ void main() {
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
     expect(find.widgetWithText(InputChip, 'Zed'), findsOneWidget);
-    await tester.tap(find.byTooltip('Delete')); // the chip's delete button
+    await tester.tap(find.byTooltip('Remove Zed')); // tapping the chip removes the person
     await tester.pumpAndSettle();
     expect(find.widgetWithText(InputChip, 'Zed'), findsNothing);
     await tester.tap(find.text('Save'));

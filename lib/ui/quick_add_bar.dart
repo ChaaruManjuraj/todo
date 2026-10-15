@@ -38,7 +38,7 @@ class _QuickAddBarState extends State<QuickAddBar> {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
         child: TextField(
           controller: _ctl,
           focusNode: widget.focusNode,
@@ -48,10 +48,15 @@ class _QuickAddBarState extends State<QuickAddBar> {
           onSubmitted: _submit,
           decoration: InputDecoration(
             hintText: 'Add a task',
-            prefixIcon: const Icon(Icons.add),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            prefixIcon: Icon(Icons.add_rounded, color: Theme.of(context).colorScheme.primary),
+            border: _pill(Theme.of(context).colorScheme.outlineVariant),
+            enabledBorder: _pill(Theme.of(context).colorScheme.outlineVariant),
+            focusedBorder: _pill(Theme.of(context).colorScheme.primary, width: 2),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
       );
 }
+
+OutlineInputBorder _pill(Color color, {double width = 1}) =>
+    OutlineInputBorder(borderRadius: BorderRadius.circular(28), borderSide: BorderSide(color: color, width: width));
