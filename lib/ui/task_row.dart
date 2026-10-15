@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../domain/schedule.dart';
 import '../domain/task.dart';
+import 'animated_task_list.dart';
 
 const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -50,7 +51,10 @@ class TaskRow extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Expanded(
-            child: Padding(
+            child: AnimatedOpacity(
+              opacity: task.done ? 0.6 : 1,
+              duration: motion(context),
+              child: Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(
@@ -76,6 +80,7 @@ class TaskRow extends StatelessWidget {
                     ]),
                   ),
               ]),
+            ),
             ),
           ),
           if (task.reminder)

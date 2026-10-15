@@ -199,6 +199,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Delete'));
       await tester.pumpAndSettle();
+      expect(find.text('task a'), findsNothing); // hidden at once
+      await tester.pump(const Duration(seconds: 6)); // ...deleted for real when the Undo snackbar expires
+      await tester.pumpAndSettle();
       expect(await repo.watch().first, isEmpty);
     });
   });

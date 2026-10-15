@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../data/task_repository.dart';
 import '../domain/schedule.dart';
 import '../domain/task.dart';
+import 'animated_task_list.dart';
 import 'clock.dart';
 import 'quick_add_bar.dart';
 import 'task_detail.dart';
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _quickAdd = FocusNode();
   bool _showAllCompleted = false;
   String? _panelId; // task open in the wide-layout side panel
+  final _pendingDelete = <String>{}; // hidden now, deleted for real when the Undo snackbar closes
 
   @override
   void initState() {
@@ -71,6 +73,36 @@ class _HomeScreenState extends State<HomeScreen> {
   void _create(String name) {
     final now = widget.clock.value.toUtc();
     widget.repo.upsert(Task(id: newTaskId(), name: name, createdAt: now, updatedAt: now));
+  }
+
+  void _toggle(Task t, bool done) {
+    widget.clock.refresh();
+    widget.repo.upsert(t.copyWith(done: done, doneAt: done ? widget.clock.value : null));
+    if (done) _undoable('Completed "${t.name}"', undo: () => widget.repo.upsert(t));
+  }
+
+  /// Hard delete, but only once the Undo snackbar has gone away without Undo being pressed.
+  void _delete(Task t) {
+    setState(() => _pendingDelete.add(t.id));
+    _undoable('Deleted "${t.name}"', undo: () {}, onExpire: () => widget.repo.delete(t.id), onClosed: () {
+      if (mounted) setState(() => _pendingDelete.remove(t.id));
+    });
+  }
+
+  void _undoable(String message, {required VoidCallback undo, VoidCallback? onExpire, VoidCallback? onClosed}) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger
+        .showSnackBar(SnackBar(
+          content: Text(message),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(label: 'Undo', onPressed: undo),
+        ))
+        .closed
+        .then((reason) {
+      if (reason != SnackBarClosedReason.action) onExpire?.call();
+      onClosed?.call();
+    });
   }
 
   Future<void> _open(Task t, List<Task> all, bool wide) async {
@@ -97,8 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
           close();
         },
         onDelete: () {
-          widget.repo.delete(t.id);
           close();
+          _delete(t);
         },
       );
 
@@ -144,24 +176,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _list(List<Task> all, bool wide) => ValueListenableBuilder<DateTime>(
         valueListenable: widget.clock,
         builder: (context, now, _) {
-          final sections = groupTasks(all, now, showAllCompleted: _showAllCompleted);
+          final visible = all.where((t) => !_pendingDelete.contains(t.id)).toList();
+          final sections = groupTasks(visible, now, showAllCompleted: _showAllCompleted);
           if (sections.isEmpty) return const Center(child: Text('Nothing to do'));
-          return ListView(children: [
+          return AnimatedTaskList(entries: [
             for (final e in sections.entries) ...[
-              Semantics(
-                header: true,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
-                  child: Text(_titles[e.key]!, style: Theme.of(context).textTheme.titleSmall),
+              ListEntry(
+                'h:${e.key.name}',
+                Semantics(
+                  header: true,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 4),
+                    child: Text(_titles[e.key]!, style: Theme.of(context).textTheme.titleSmall),
+                  ),
                 ),
               ),
               for (final t in e.value)
-                TaskRow(
-                  key: ValueKey(t.id),
-                  task: t,
-                  now: now,
-                  showDate: e.key == Section.later || e.key == Section.past,
-                  onTap: () => _open(t, all, wide),
+                // Keyed by section too, so a task changing section animates out of one and into the other.
+                ListEntry(
+                  '${t.id}@${e.key.name}',
+                  TaskRow(
+                    task: t,
+                    now: now,
+                    showDate: e.key == Section.later || e.key == Section.past,
+                    onTap: () => _open(t, all, wide),
+                    onToggle: (v) => _toggle(t, v),
+                  ),
                 ),
             ],
           ]);
