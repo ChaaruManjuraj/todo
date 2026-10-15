@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build a release artifact:  scripts/release.sh <android|linux|windows|macos|web>
+# Build a release artifact:  scripts/release.sh <android|linux|deb|windows|macos|web>
 # Desktop sign-in needs the Desktop OAuth client. Keep it OUT of the repo: put these two keys in a JSON file anywhere
 # outside the project and point at it, e.g.   DEFINES=~/secrets/desktop_oauth.json scripts/release.sh linux
 #   {"GOOGLE_DESKTOP_CLIENT_ID": "...", "GOOGLE_DESKTOP_CLIENT_SECRET": "..."}
@@ -30,6 +30,11 @@ case "$target" in
     tar -C "$out" -czf build/todo-linux-x64.tar.gz bundle
     echo "-> build/todo-linux-x64.tar.gz"
     ;;
+  deb)
+    [[ "$(uname -s)" == "Linux" ]] || need_os Linux
+    flutter build linux --release "${defines[@]}"
+    scripts/make_deb.sh
+    ;;
   windows)
     [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* || "$(uname -s)" == CYGWIN* ]] || need_os Windows
     flutter build windows --release "${defines[@]}"
@@ -41,7 +46,7 @@ case "$target" in
     echo "-> build/macos/Build/Products/Release/todo.app"
     ;;
   *)
-    echo "usage: $0 <android|linux|windows|macos|web>" >&2
+    echo "usage: $0 <android|linux|deb|windows|macos|web>" >&2
     exit 1
     ;;
 esac

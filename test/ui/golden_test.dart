@@ -57,6 +57,9 @@ Future<void> pumpApp(WidgetTester tester, {required Size size, required bool dar
   await tester.pumpWidget(signedOut
       ? TodoApp(clock: clock, theme: theme, auth: _SignedOut(), repoFor: (_) => MemoryRepo())
       : TodoApp(repo: MemoryRepo(tasks ?? sample), clock: clock, theme: theme));
+  await tester.pump();
+  // Images decode on a real thread; without this the screenshot is taken before the logo has loaded.
+  await tester.runAsync(() => precacheImage(const AssetImage('assets/logo/logo.png'), tester.element(find.byType(Scaffold).first)));
   await tester.pumpAndSettle();
 }
 

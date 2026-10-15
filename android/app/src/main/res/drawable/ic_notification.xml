@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <!-- body, with the two eyes cut out -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M256,84C174,84 136,152 136,238C136,348 166,438 256,438C346,438 376,348 376,238C376,152 338,84 256,84Z M196,168a22,22 0 1,0 44,0a22,22 0 1,0 -44,0Z M272,168a22,22 0 1,0 44,0a22,22 0 1,0 -44,0Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M146,250C98,290 92,366 122,402C152,378 166,318 166,262Z M366,250C414,290 420,366 390,402C360,378 346,318 346,262Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M166,446a42,15 0 1,0 84,0a42,15 0 1,0 -84,0Z M262,446a42,15 0 1,0 84,0a42,15 0 1,0 -84,0Z" />
+</vector>

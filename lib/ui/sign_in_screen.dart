@@ -47,12 +47,7 @@ class _SignInScreenState extends State<SignInScreen> {
               child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(color: scheme.primaryContainer, shape: BoxShape.circle),
-                    child: Icon(Icons.check_rounded, size: 30, color: scheme.onPrimaryContainer),
-                  ),
+                  child: Image.asset('assets/logo/logo.png', width: 72, height: 72, semanticLabel: 'TODO'),
                 ),
                 const SizedBox(height: 28),
                 Text('Your tasks, everywhere.', style: text.displaySmall),

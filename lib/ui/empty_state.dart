@@ -15,12 +15,7 @@ class EmptyState extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(color: scheme.primaryContainer, shape: BoxShape.circle),
-            child: Icon(Icons.check_rounded, size: 32, color: scheme.onPrimaryContainer),
-          ),
+          Image.asset('assets/logo/logo.png', width: 88, height: 88, semanticLabel: 'TODO'),
           const SizedBox(height: 20),
           Text('Nothing to do', style: text.titleMedium),
           const SizedBox(height: 6),

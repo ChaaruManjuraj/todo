@@ -67,6 +67,10 @@ One family: **Figtree** (SIL OFL, bundled in `assets/fonts`, variable `wght` axi
 
 Motion explains a change and nothing else. 200ms, ease-out-quart. Rows fade and expand in when added, and fade and collapse out when removed or moved to another section. The check circle uses the standard checkbox animation. With the system's reduce-motion setting on, every duration is zero and changes apply in one frame (`motion()` in `lib/ui/animated_task_list.dart`). No page-load choreography.
 
+## Logo
+
+A penguin in the app's own colors: warm-ink body on a clay rounded square, a soft-white belly with a small clay check (a finished task), peach beak and feet. Source: `assets/logo/logo.svg`. Every platform icon is generated from it by `python3 scripts/make_icons.py` (needs `pip install --user cairosvg pillow`): web favicon and PWA icons, Android launcher and adaptive icons, macOS and Windows app icons, the Linux window icon, and the in-app mark on the sign-in and empty screens. The Android status-bar notification icon (`drawable/ic_notification.xml`) is a hand-written white silhouette of the same shape, because Android only uses the alpha channel there. Edit the SVG, rerun the script, and commit the generated files; keep the palette tied to `lib/ui/theme.dart`.
+
 ## Do / don't
 
 - Do keep one accent. Do keep section headers sentence case and muted.

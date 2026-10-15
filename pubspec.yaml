@@ -74,6 +74,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/logo/logo.png
+    - assets/logo/app_icon.png
+
   # Figtree (SIL OFL, see assets/fonts/Figtree-OFL.txt): one variable family for the whole UI, so every platform
   # renders the same type. Weights come from the wght axis (see lib/ui/theme.dart).
   fonts:

@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -17,7 +19,7 @@ class AndroidNotificationPort implements NotificationPort {
     tz.initializeTimeZones();
     await _syncTimezone();
     await _plugin.initialize(
-      const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')),
+      const InitializationSettings(android: AndroidInitializationSettings('ic_notification')),
       onDidReceiveNotificationResponse: handleNotificationResponse,
       onDidReceiveBackgroundNotificationResponse: onNotificationResponseBackground,
     );
@@ -55,6 +57,8 @@ class AndroidNotificationPort implements NotificationPort {
           'reminders',
           'Reminders',
           channelDescription: 'Task reminders',
+          icon: 'ic_notification',
+          color: Color(0xFFBC452B), // the app's clay
           importance: Importance.high,
           priority: Priority.high,
           actions: [AndroidNotificationAction(markDoneActionId, 'Mark done', cancelNotification: true)],

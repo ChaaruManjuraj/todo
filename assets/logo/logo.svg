@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TODO penguin">
+  <title>TODO</title>
+  <!-- Palette from lib/ui/theme.dart: clay #BC452B, ink #27201E, soft white #FBF5F4, peach #FFB59E -->
+  <rect id="bg" width="512" height="512" rx="112" fill="#BC452B"/>
+  <g id="penguin">
+    <!-- feet -->
+    <ellipse cx="208" cy="446" rx="42" ry="15" fill="#FFB59E"/>
+    <ellipse cx="304" cy="446" rx="42" ry="15" fill="#FFB59E"/>
+    <!-- flippers -->
+    <path d="M146 250C98 290 92 366 122 402C152 378 166 318 166 262Z" fill="#27201E"/>
+    <path d="M366 250C414 290 420 366 390 402C360 378 346 318 346 262Z" fill="#27201E"/>
+    <!-- body and head -->
+    <path d="M256 84C174 84 136 152 136 238C136 348 166 438 256 438C346 438 376 348 376 238C376 152 338 84 256 84Z" fill="#27201E"/>
+    <!-- belly -->
+    <path d="M256 222C206 222 176 276 176 336C176 394 206 424 256 424C306 424 336 394 336 336C336 276 306 222 256 222Z" fill="#FBF5F4"/>
+    <!-- eyes -->
+    <circle cx="218" cy="168" r="22" fill="#FBF5F4"/>
+    <circle cx="294" cy="168" r="22" fill="#FBF5F4"/>
+    <circle cx="222" cy="171" r="10" fill="#27201E"/>
+    <circle cx="290" cy="171" r="10" fill="#27201E"/>
+    <!-- beak -->
+    <path d="M230 200Q256 188 282 200Q272 232 256 238Q240 232 230 200Z" fill="#FFB59E"/>
+    <!-- a finished task -->
+    <path d="M214 330L244 362L300 298" fill="none" stroke="#BC452B" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
