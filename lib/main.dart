@@ -35,9 +35,14 @@ Future<void> main() async {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       // Reminders fire on Android only: keep scheduled notifications in step with the signed-in user's tasks.
       final port = AndroidNotificationPort();
-      await port.init();
-      requestNotificationPermission = port.requestPermission;
-      await registerReminderSync();
+      try {
+        await port.init();
+        requestNotificationPermission = port.requestPermission;
+        await registerReminderSync();
+      } catch (e, st) {
+        // Reminders are optional: a notification-setup failure must never stop the app from opening.
+        debugPrint('reminders unavailable: $e\n$st');
+      }
       final syncs = <String, ReminderSync>{};
       auth.uid().listen((uid) async {
         if (uid != null) return;
